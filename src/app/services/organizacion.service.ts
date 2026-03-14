@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 import { Organizacion } from '../models/organizacion.model';
 import { environment } from '../../environments/environment';
 
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -14,40 +12,35 @@ export class OrganizacionService {
 
   constructor(private http: HttpClient) {}
 
-  //Función: obtener organizaciones de la API
   getOrganizaciones(): Observable<Organizacion[]> {
     return this.http.get<Organizacion[]>(
-      `${this.baseUrl}/organizaciones`
+      `${this.baseUrl}/organizations`
     );
   }
 
-  //Función: obtener una organización por su ID
   getOrganizacionById(id: string): Observable<Organizacion> {
     return this.http.get<Organizacion>(
-      `${this.baseUrl}/organizaciones/${id}`
+      `${this.baseUrl}/organizations/${id}`
     );
   }
 
-  //Función: crear nueva organización
   createOrganizacion(name: string): Observable<Organizacion> {
     return this.http.post<Organizacion>(
-      `${this.baseUrl}/organizaciones`,
+      `${this.baseUrl}/organizations`,
       { name }
     );
   }
 
-  //Función: actualizar organización existente
   updateOrganizacion(id: string, name: string): Observable<Organizacion> {
     return this.http.put<Organizacion>(
-      `${this.baseUrl}/organizaciones/${id}`,
+      `${this.baseUrl}/organizations/${id}`,
       { name }
     );
   }
 
-  //Función: eliminar organización
   deleteOrganizacion(id: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.baseUrl}/organizaciones/${id}`
+      `${this.baseUrl}/organizations/${id}`
     );
   }
 }
