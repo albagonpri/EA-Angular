@@ -1,0 +1,28 @@
+<a routerLink="/">← Volver</a>
+
+@if (loading) {
+  <p>Cargando organización...</p>
+} @else if (errorMsg) {
+  <p>{{ errorMsg }}</p>
+} @else if (organizacion) {
+  <h2>{{ organizacion.name }}</h2>
+  <p><strong>ID:</strong> {{ organizacion._id }}</p>
+
+  <h3>Usuarios vinculados</h3>
+
+  @if (organizacion.users.length > 0) {
+    <ul>
+      @for (user of organizacion.users; track $index) {
+        <li>
+          @if (typeof user === 'string') {
+            {{ user }}
+          } @else {
+            {{ user.name }} - {{ user.email }}
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <p>No hay usuarios vinculados.</p>
+  }
+}
