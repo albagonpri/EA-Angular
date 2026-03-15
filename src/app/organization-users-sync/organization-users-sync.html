@@ -1,0 +1,38 @@
+<h3>Gestionar usuarios</h3>
+
+@if (errorMsg) {
+  <p>{{ errorMsg }}</p>
+}
+
+<div class="sync-box">
+  <select [(ngModel)]="selectedUserId">
+    <option value="">Selecciona un usuario</option>
+
+    @for (user of availableUsers; track user._id) {
+      <option [value]="user._id">
+        {{ user.name }} · {{ user.email }}
+      </option>
+    }
+  </select>
+
+  <button type="button" (click)="addUser()" [disabled]="!selectedUserId || saving">
+    Añadir
+  </button>
+</div>
+
+<h4>Usuarios actuales</h4>
+
+@if (linkedUsers.length > 0) {
+  <ul class="linked-list">
+    @for (user of linkedUsers; track user._id) {
+      <li>
+        <span>{{ user.name }} · {{ user.email }}</span>
+        <button type="button" (click)="removeUser(user._id)" [disabled]="saving">
+          Eliminar
+        </button>
+      </li>
+    }
+  </ul>
+} @else {
+  <p>No hay usuarios vinculados.</p>
+}

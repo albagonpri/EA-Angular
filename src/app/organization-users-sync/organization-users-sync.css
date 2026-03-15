@@ -1,0 +1,18 @@
+.sync-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.linked-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linked-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
