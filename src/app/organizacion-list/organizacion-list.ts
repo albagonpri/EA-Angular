@@ -7,7 +7,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { RouterModule } from '@angular/router';
 
-
 @Component({
   selector: 'app-organizacion-list',
   standalone: true,
@@ -28,27 +27,31 @@ export class OrganizacionList implements OnInit {
   expanded: { [key: string]: boolean } = {};
   limite = 10;
   mostrarTodasOrganizaciones = false;
-  
-  constructor(private api: OrganizacionService, private fb: FormBuilder, private cdr: ChangeDetectorRef, private dialog: MatDialog) {
+
+  constructor(
+    private api: OrganizacionService,
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
+  ) {
     this.organizacionForm = this.fb.group({
       nombre: ['', Validators.required],
+      country: ['', Validators.required],
     });
 
     this.searchControl = new FormControl('');
   }
 
-  //Función: leer
   ngOnInit(): void {
     this.load();
 
     this.searchControl.valueChanges.subscribe(value => {
       const term = value?.toLowerCase() ?? '';
-  
+
       this.organizacionesFiltradas = this.organizaciones.filter(org =>
         org.name.toLowerCase().includes(term)
       );
     });
-    
   }
 
   load(): void {
@@ -71,20 +74,17 @@ export class OrganizacionList implements OnInit {
     });
   }
 
-  //Función: trackBy para optimizar el ngFor
   trackById(_index: number, org: Organizacion): string {
     return org._id;
   }
 
-  //Función: mostrar formulario
   mostrarFormulario(): void {
-  this.mostrarForm = true;
+    this.mostrarForm = true;
   }
 
-  //Función: mostrar más organizaciones
   mostrarMas(): void {
-  this.mostrarTodasOrganizaciones = true;
-  } 
+    this.mostrarTodasOrganizaciones = true;
+  }
 
   get organizacionesVisibles(): Organizacion[] {
     if (this.mostrarTodasOrganizaciones) {
@@ -93,28 +93,25 @@ export class OrganizacionList implements OnInit {
     return this.organizacionesFiltradas.slice(0, this.limite);
   }
 
-  //Función: editar organización
   editar(org: Organizacion): void {
     this.mostrarForm = true;
     this.editando = true;
     this.organizacionEditId = org._id;
 
     this.organizacionForm.patchValue({
-      nombre: org.name
+      nombre: org.name,
+      country: (org as any).country ?? ''
     });
   }
 
-  //Función: guardar organización (crear o actualizar)
   guardar(): void {
-
     if (this.organizacionForm.invalid) return;
 
     const nombre = this.organizacionForm.value.nombre;
+    const country = this.organizacionForm.value.country;
 
     if (this.editando && this.organizacionEditId) {
-
-      // UPDATE
-      this.api.updateOrganizacion(this.organizacionEditId, nombre)
+      this.api.updateNombreOrganizacion(this.organizacionEditId, nombre)
         .subscribe({
           next: () => {
             this.resetForm();
@@ -124,11 +121,8 @@ export class OrganizacionList implements OnInit {
             this.errorMsg = 'No se ha podido actualizar la organización.';
           }
         });
-
     } else {
-
-      // CREATE
-      this.api.createOrganizacion(nombre)
+      this.api.createOrganizacion(nombre, country)
         .subscribe({
           next: () => {
             this.resetForm();
@@ -141,12 +135,10 @@ export class OrganizacionList implements OnInit {
     }
   }
 
-  //estado de expansión para mostrar el nombre completo
   toggleExpand(id: string): void {
     this.expanded[id] = !this.expanded[id];
   }
 
-  //Función: resetear formulario
   resetForm(): void {
     this.mostrarForm = false;
     this.editando = false;
@@ -154,25 +146,23 @@ export class OrganizacionList implements OnInit {
     this.organizacionForm.reset();
   }
 
-  //Update: editar nombre de la organización
-  editOrganizacion(org: Organizacion) {
-
+  editOrganizacion(org: Organizacion): void {
     const nuevoNombre = prompt('Nuevo nombre:', org.name);
 
     if (nuevoNombre && nuevoNombre.trim() !== '') {
-
-      this.api.updateOrganizacion(org._id, nuevoNombre)
-        .subscribe(() => {
-
-          // actualizar vista sin recargar
-          org.name = nuevoNombre;
-
+      this.api.updateNombreOrganizacion(org._id, nuevoNombre)
+        .subscribe({
+          next: () => {
+            org.name = nuevoNombre;
+          },
+          error: () => {
+            this.errorMsg = 'No se ha podido actualizar la organización.';
+          }
         });
     }
   }
 
-  //Función: confirmar eliminación
-  confirmDelete(id: string, name?: string) {
+  confirmDelete(id: string, name?: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: name
     });
@@ -184,7 +174,6 @@ export class OrganizacionList implements OnInit {
     });
   }
 
-  //Función: eliminar organización
   delete(id: string): void {
     this.errorMsg = '';
     this.loading = true;
